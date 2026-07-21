@@ -1,0 +1,75 @@
+# Core Data Processing
+pandas==2.0.3
+numpy==1.24.3
+scipy==1.11.1
+
+# Web Scraping
+beautifulsoup4==4.12.2
+requests==2.31.0
+selenium==4.11.2
+playwright==1.36.0
+
+# APIs
+google-api-python-client==2.95.0
+praw==7.7.0  # Reddit API
+yt-dlp==2023.9.24
+instagrapi==2.0.0
+
+# Time-Series Forecasting
+prophet==1.1.4
+scikit-learn==1.3.0
+statsmodels==0.14.0
+
+# NLP & Sentiment Analysis
+transformers==4.32.1
+torch==2.0.1
+nltk==3.8.1
+textblob==0.17.1
+
+# Database
+psycopg2-binary==2.9.7
+sqlalchemy==2.0.20
+alembic==1.11.1
+timescaledb-python==0.1.0
+
+# API & Web Framework
+fastapi==0.103.0
+uvicorn==0.23.2
+pydantic==2.3.0
+
+# Task Scheduling
+apache-airflow==2.7.1
+celery==5.3.1
+redis==5.0.0
+
+# Data Validation & Processing
+pydantic-settings==2.0.3
+python-dotenv==1.0.0
+
+# ML & Model Management
+joblib==1.3.2
+xgboost==2.0.0
+lightgbm==4.0.0
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3
+tqdm==4.66.1
+logging-config==8.0.0
+
+# Testing
+pytest==7.4.0
+pytest-asyncio==0.21.1
+
+# Deployment
+gunicorn==21.2.0
+python-multipart==0.0.6
+
+# Monitoring & Logging
+sentry-sdk==1.32.0
+
+# Development
+black==23.9.1
+flake8==6.1.0
+pylint==2.18.0
+mypy==1.5.1
