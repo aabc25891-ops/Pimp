@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pimp_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-pimp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pimp_secure_pwd}
+      POSTGRES_DB: ${DB_NAME:-pimp_db}
+      TZ: Asia/Kolkata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pimp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pimp_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pimp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pimp_network
+
+  # FastAPI Backend
+  backend:
+    build: .
+    container_name: pimp_backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-pimp}:${DB_PASSWORD:-pimp_secure_pwd}@postgres:5432/${DB_NAME:-pimp_db}
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: ${DEBUG:-False}
+      FASTAPI_HOST: 0.0.0.0
+      FASTAPI_PORT: 8000
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-here}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      REDDIT_USER_AGENT: ${REDDIT_USER_AGENT:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+      - ./logs:/app/logs
+    networks:
+      - pimp_network
+    restart: unless-stopped
+
+  # Airflow Scheduler (Optional)
+  airflow:
+    image: apache/airflow:2.7-python3.11
+    container_name: pimp_airflow
+    environment:
+      AIRFLOW_HOME: /airflow
+      AIRFLOW__CORE__DAGS_FOLDER: /app/automation
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://${DB_USER:-pimp}:${DB_PASSWORD:-pimp_secure_pwd}@postgres:5432/airflow_db
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - ./automation:/app/automation
+      - airflow_data:/airflow
+    networks:
+      - pimp_network
+    restart: unless-stopped
+    command: airflow standalone
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: pimp_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    networks:
+      - pimp_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  airflow_data:
+
+networks:
+  pimp_network:
+    driver: bridge
