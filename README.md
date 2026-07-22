@@ -1,231 +1,270 @@
-# PIMP - Predictive Intelligence Market Platform
+# PIMP - Product Trend Prediction Engine
 
-AI-powered product trend prediction for e-commerce sellers on Meesho, Amazon, and Flipkart.
+## Overview
 
-## 🎯 Overview
+PIMP is an AI-powered product trend prediction engine that combines machine learning, web scraping, and real-time data analysis to identify emerging product trends across Indian e-commerce platforms (Amazon, Flipkart, Meesho) and social media (Reddit, Google Trends).
 
-PIMP predicts which products will trend **before they become popular** by analyzing:
-- Google Trends data
-- Reddit discussions
-- Marketplace catalogs (Meesho, Amazon, Flipkart)
-- Social signals (YouTube, Instagram)
-- Real-time market data
+## Features
 
-## 📊 Features
+### Data Collection
+- **E-commerce Scraping**: Automatic data collection from Amazon, Flipkart, and Meesho
+- **Social Media Analysis**: Reddit post tracking and sentiment analysis
+- **Trend Monitoring**: Real-time Google Trends integration
+- **Historical Data**: Complete product history and metric tracking
 
-- **Daily Analysis:** Runs every day at 2 AM IST automatically
-- **2 Categories:** Fashion & Home Goods
-- **3 Marketplaces:** Meesho, Amazon India, Flipkart
-- **Prediction Output:**
-  - Trend Score (0-100)
-  - Probability of trending (%)
-  - Confidence level
-  - Detailed reasons
-  - Historical trend graphs
+### Machine Learning
+- **Ensemble Predictions**: Combined Random Forest, Gradient Boosting, and Prophet models
+- **Feature Engineering**: Temporal, lag, rolling window, and interaction features
+- **NLP Sentiment Analysis**: HuggingFace transformers and VADER sentiment analysis
+- **Time Series Forecasting**: Prophet-based trend forecasting
 
-## 🏗️ Architecture
+### API
+- **RESTful API**: FastAPI-powered REST endpoints
+- **Real-time Predictions**: Instant trend prediction queries
+- **Analytics Dashboard**: Comprehensive analytics and metrics
+- **Trending Products**: Top trending products by category
 
-```
-Data Collection (Daily)
-    ↓
-ETL Pipeline (Clean & Normalize)
-    ↓
-ML Models (Forecasting + NLP)
-    ↓
-Ensemble Model (Combine signals)
-    ↓
-API (Serve predictions)
-    ↓
-Dashboard (Display results)
-```
+### Infrastructure
+- **Docker**: Containerized deployment
+- **PostgreSQL**: Robust data persistence
+- **Redis**: High-performance caching
+- **Nginx**: Load balancing and reverse proxy
+- **Airflow**: Automated data pipeline orchestration
 
-## 📁 Project Structure
+## Architecture
 
 ```
-PIMP/
-├── data_collection/          # Scrapers & data fetchers
-│   ├── scrapers/
-│   │   ├── meesho_scraper.py
-│   │   ├── amazon_scraper.py
-│   │   ├── flipkart_scraper.py
-│   │   └── social_scraper.py
-│   ├── apis/
-│   │   ├── google_trends.py
-│   │   ├── reddit_api.py
-│   │   └── youtube_api.py
-│   └── etl_pipeline.py
-├── database/
-│   ├── schema.sql
-│   ├── models.py
-│   └── migrations/
-├── ml_models/
-│   ├── forecasting.py        # Time-series models
-│   ├── nlp_sentiment.py       # NLP analysis
-│   ├── ensemble.py            # Combine models
-│   └── training/
-├── backend/
-│   ├── app.py                 # FastAPI server
-│   ├── routes/
-│   │   ├── predictions.py
-│   │   ├── products.py
-│   │   └── analytics.py
-│   └── utils/
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── App.tsx
-│   └── package.json
-├── airflow/
-│   ├── dags/
-│   │   └── daily_pipeline.py
-│   └── config/
-├── docker/
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── config/
-│   ├── settings.py
-│   └── .env.example
-├── tests/
-├── docs/
-│   ├── SETUP.md
-│   ├── ARCHITECTURE.md
-│   └── API.md
-├── requirements.txt
-├── .gitignore
-└── setup.py
+┌─────────────────────────────────────────────────────────┐
+│                    PIMP System                           │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │  Data Layer │  │ ML Pipeline  │  │   API Layer  │   │
+│  ├─────────────┤  ├──────────────┤  ├──────────────┤   │
+│  │ PostgreSQL  │  │ Ensemble     │  │ FastAPI      │   │
+│  │ Redis Cache │  │ Predictions  │  │ Endpoints    │   │
+│  │ Collections │  │              │  │              │   │
+│  └─────────────┘  └──────────────┘  └──────────────┘   │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │        Automation & Scheduling (Airflow)        │   │
+│  │  • Scraping • Data Processing • Predictions     │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                          │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │     Infrastructure (Docker, Nginx, SSL)          │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- PostgreSQL 12+
-- Node.js 16+
 - Docker & Docker Compose
+- Python 3.11+
+- PostgreSQL
+- Redis
 
 ### Installation
 
-1. **Clone the repo**
+1. **Clone Repository**
 ```bash
 git clone https://github.com/aabc25891-ops/Pimp.git
 cd Pimp
 ```
 
-2. **Set up Python environment**
+2. **Set Environment Variables**
 ```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+3. **Start with Docker Compose**
+```bash
+docker-compose up -d
+```
+
+4. **Access Services**
+- API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- Airflow: http://localhost:8080
+- Nginx: http://localhost (HTTPS)
+
+## API Endpoints
+
+### Products
+- `GET /api/v1/products/` - List all products
+- `GET /api/v1/products/{id}` - Get product details
+- `POST /api/v1/products/` - Create product
+- `GET /api/v1/products/category/{category}/trending` - Trending in category
+
+### Predictions
+- `GET /api/v1/predictions/` - List predictions
+- `GET /api/v1/predictions/product/{id}` - Get predictions for product
+- `GET /api/v1/predictions/top-trending` - Top trending products
+- `POST /api/v1/predictions/` - Create prediction
+
+### Analytics
+- `GET /api/v1/analytics/summary` - Analytics summary
+- `GET /api/v1/analytics/category-stats` - Statistics by category
+- `GET /api/v1/analytics/model-performance` - Model performance metrics
+- `GET /api/v1/analytics/api-usage` - API usage statistics
+
+### Trends
+- `GET /api/v1/trends/google/trending` - Google trending searches
+- `GET /api/v1/trends/reddit/trending` - Reddit trending posts
+- `GET /api/v1/trends/keyword/{keyword}` - Keyword trend data
+- `GET /api/v1/trends/momentum` - Trend momentum analysis
+
+## Configuration
+
+### Environment Variables
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/pimp_db
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# FastAPI
+FASTAPI_HOST=0.0.0.0
+FASTAPI_PORT=8000
+SECRET_KEY=your-secret-key
+
+# External APIs
+REDDIT_CLIENT_ID=your-reddit-client-id
+REDDIT_CLIENT_SECRET=your-reddit-secret
+REDDIT_USER_AGENT=PIMP/1.0
+
+# Settings
+ENVIRONMENT=production
+DEBUG=False
+LOG_LEVEL=INFO
+```
+
+## Project Structure
+
+```
+Pimp/
+├── api/                      # FastAPI application
+│   ├── main.py              # Main app
+│   └── routes/              # API routes
+├── data_collection/          # Data scraping & collection
+│   ├── scrapers/            # Web scrapers
+│   └── apis/                # External API integrations
+├── ml_models/               # ML models
+│   ├── feature_engineering.py
+│   ├── forecasting.py
+│   ├── nlp_sentiment.py
+│   └── ensemble.py
+├── database/                # Database models & migrations
+├── automation/              # Airflow DAG & scheduling
+├── tests/                   # Unit tests
+├── utils/                   # Utilities
+├── config/                  # Configuration
+├── Dockerfile               # Docker image
+├── docker-compose.yml       # Docker compose
+├── nginx.conf              # Nginx configuration
+└── requirements.txt        # Python dependencies
+```
+
+## Development
+
+### Local Setup
+```bash
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run tests
+pytest tests/
+
+# Format code
+black .
+isort .
+
+# Run linting
+flake8 .
+mypy .
 ```
 
-3. **Set up database**
+### Running Locally
 ```bash
-createdb pimp_db
-psql pimp_db < database/schema.sql
+# Start FastAPI
+uvicorn api.main:app --reload
+
+# Start scheduler
+python -c "from automation.scheduler import PIMPScheduler; scheduler = PIMPScheduler(); scheduler.start()"
 ```
 
-4. **Configure environment variables**
+## Deployment
+
+### Docker Deployment
 ```bash
-cp config/.env.example config/.env
-# Edit config/.env with your API keys
+# Build image
+docker build -t pimp:latest .
+
+# Push to registry
+docker tag pimp:latest your-registry/pimp:latest
+docker push your-registry/pimp:latest
 ```
 
-5. **Run data collection**
+### Production Deployment
 ```bash
-python data_collection/etl_pipeline.py
+# With Docker Compose
+docker-compose -f docker-compose.yml up -d
+
+# Check logs
+docker-compose logs -f backend
 ```
 
-6. **Start API server**
-```bash
-python backend/app.py
-```
+## Monitoring
 
-7. **Run frontend** (in new terminal)
-```bash
-cd frontend
-npm install
-npm start
-```
+- **Application Logs**: `/app/logs/pimp.log`
+- **Sentry**: Real-time error tracking
+- **Prometheus**: Metrics collection (optional)
+- **Health Check**: `/health` endpoint
 
-## 📊 Data Sources
+## Contributing
 
-| Source | Frequency | Purpose |
-|--------|-----------|---------|
-| Google Trends | Daily | Search volume trends |
-| Reddit API | Daily | Community sentiment & discussions |
-| Meesho | Daily | Product listings & demand |
-| Amazon | Daily | Best sellers & ratings |
-| Flipkart | Daily | Trending products |
-| YouTube/Instagram | Weekly | Video trend signals |
+1. Fork repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -am 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
 
-## 🧠 ML Pipeline
-
-1. **Data Preprocessing:** Clean, normalize, handle missing values
-2. **Feature Engineering:** Extract signals from each source
-3. **Time-Series Forecasting:** Prophet model for trend prediction
-4. **NLP Analysis:** Sentiment analysis on text data
-5. **Ensemble Model:** Combine all signals into final probability
-6. **Calibration:** Ensure output is interpretable as true probability
-
-## 📈 Output Format
-
-```json
-{
-  "product_id": "123",
-  "product_name": "Oversized Anime T-Shirt",
-  "category": "Fashion",
-  "trend_score": 81,
-  "probability": 0.81,
-  "confidence": "High",
-  "time_horizon": "30 days",
-  "reasons": [
-    "Google searches ↑ 42%",
-    "Instagram mentions ↑ 38%",
-    "Meesho demand ↑ 25%",
-    "12 new competitor listings"
-  ],
-  "historical_trend": [...],
-  "prediction_date": "2025-07-21",
-  "next_update": "2025-07-22"
-}
-```
-
-## 🔧 Configuration
-
-See `config/.env.example` for all available options:
-- API keys (Google Trends, Reddit, YouTube, Instagram)
-- Database credentials
-- Email notifications
-- Update frequency
-- Model parameters
-
-## 📚 Documentation
-
-- [Setup Guide](docs/SETUP.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [API Documentation](docs/API.md)
-- [ML Models Guide](docs/MODELS.md)
-
-## 🤝 Contributing
-
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Commit changes: `git commit -m 'Add your feature'`
-3. Push to branch: `git push origin feature/your-feature`
-4. Open a Pull Request
-
-## 📝 License
+## License
 
 MIT License - See LICENSE file
 
-## 👨‍💻 Author
+## Support
 
-Built by aabc25891-ops
+For issues and questions:
+- GitHub Issues: https://github.com/aabc25891-ops/Pimp/issues
+- Email: pimp-support@example.com
 
-## 📧 Support
+## Roadmap
 
-For issues or questions, open a GitHub issue.
+- [ ] Mobile app (React Native)
+- [ ] Advanced analytics dashboard (React)
+- [ ] Webhook notifications
+- [ ] Custom alerts
+- [ ] User authentication
+- [ ] Multi-language support
+- [ ] International e-commerce support
+
+## Acknowledgments
+
+- FastAPI & Uvicorn
+- SQLAlchemy
+- Scikit-learn & TensorFlow
+- Prophet forecasting
+- HuggingFace Transformers
 
 ---
 
-**Last Updated:** 2025-07-21
+**PIMP v1.0.0** - Powering Product Trends
